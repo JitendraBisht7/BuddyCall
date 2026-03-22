@@ -1,6 +1,11 @@
 import express from "express";
 import { createServer } from "node:http";
 import { env } from "node:process";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 import mongoose from "mongoose";
@@ -20,6 +25,14 @@ app.use(express.json({limit: "40kb"}));
 app.use(express.urlencoded({limit: "40kb", extended: true }));
 
 app.use("/api/v1/users", userRoutes);
+
+// Serve static files from the frontend build directory
+app.use(express.static(path.join(__dirname, "../../Frontend/build")));
+
+// Fallback to index.html for all other routes (SPA routing)
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../../Frontend/build", "index.html"));
+});
 
 
 const start = async() => {
