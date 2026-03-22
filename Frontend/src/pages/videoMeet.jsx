@@ -101,29 +101,51 @@ export default function VideoMeetComponent() {
         };
     }, []);
 
-    // Removed duplicate stream requests ensuring WebRTC stability
+    // Helper to generate a silent audio track
+    let silence = () => {
+        let ctx = new AudioContext();
+        let oscillator = ctx.createOscillator();
+        let dst = oscillator.connect(ctx.createMediaStreamDestination());
+        oscillator.start();
+        return Object.assign(dst.stream.getAudioTracks()[0], { enabled: false });
+    };
+
+    // Helper to generate a black video track
+    let black = ({ width = 640, height = 480 } = {}) => {
+        let canvas = Object.assign(document.createElement("canvas"), { width, height });
+        canvas.getContext('2d').fillRect(0, 0, width, height);
+        let stream = canvas.captureStream();
+        return Object.assign(stream.getVideoTracks()[0], { enabled: false });
+    };
 
     let gotMessageFromServer = (fromId, message) => {
-        var signal = JSON.parse(message)
+        var signal = JSON.parse(message);
 
         if (fromId !== socketIdRef.current) {
+            // Ensure the connection exists before trying to handle signalling
+            if (!connections[fromId]) {
+                console.warn(`Received signal for non-existent connection from: ${fromId}. Waiting for user-joined.`);
+                return;
+            }
+
             if (signal.sdp) {
                 connections[fromId].setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(() => {
                     if (signal.sdp.type === "offer") {
                         connections[fromId].createAnswer().then((description) => {
                             connections[fromId].setLocalDescription(description).then(() => {
-                                socketRef.current.emit("signal", fromId, JSON.stringify({ "sdp": connections[fromId].localDescription }))
-                            }).catch(e => console.log(e))
-                        }).catch(e => console.log(e))
+                                socketRef.current.emit("signal", fromId, JSON.stringify({ "sdp": connections[fromId].localDescription }));
+                            }).catch(e => console.error("Error setting local desc:", e));
+                        }).catch(e => console.error("Error creating answer:", e));
                     }
-                }).catch(e => console.log(e))
+                }).catch(e => console.error("Error setting remote desc:", e));
             }
 
-            if (signal.ice && connections[fromId]) {
-                connections[fromId].addIceCandidate(new RTCIceCandidate(signal.ice)).catch(e => console.log(e));
+            if (signal.ice) {
+                connections[fromId].addIceCandidate(new RTCIceCandidate(signal.ice))
+                    .catch(e => console.log("ICE Error:", e));
             }
         }
-    }
+    };
 
     let addMessage = (data, sender, socketIdSender) => {
         setMessages((prevMessages) => [
