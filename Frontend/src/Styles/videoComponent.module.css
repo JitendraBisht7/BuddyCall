@@ -1,7 +1,6 @@
 .meetVideoContainer {
-    position: relative;
-    height: 100vh;
-    width: 100vw;
+    position: fixed;
+    inset: 0;
     background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f1a 100%);
     overflow: hidden;
     display: flex;
