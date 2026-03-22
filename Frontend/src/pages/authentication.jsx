@@ -54,9 +54,8 @@ export default function Authentication() {
                 setPassword("")
             }
         } catch (err) {
-
-            console.log(err);
-            let message = (err.response.data.message);
+            console.error(err);
+            let message = err.response?.data?.message || "Something went wrong. Please try again later.";
             setError(message);
         }
     }
