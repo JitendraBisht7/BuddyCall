@@ -3,6 +3,9 @@ import { createServer } from "node:http";
 import { env } from "node:process";
 import path from "path";
 import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,7 +33,7 @@ app.use("/api/v1/users", userRoutes);
 app.use(express.static(path.join(__dirname, "../../Frontend/build")));
 
 // Fallback to index.html for all other routes (SPA routing)
-app.get("*", (req, res) => {
+app.get(/^(?!\/api).*/, (req, res) => {
     res.sendFile(path.join(__dirname, "../../Frontend/build", "index.html"));
 });
 
