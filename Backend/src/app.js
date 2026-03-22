@@ -33,8 +33,8 @@ app.use("/api/v1/users", userRoutes);
 app.use(express.static(path.join(__dirname, "../../Frontend/build")));
 
 // Fallback to index.html for all other routes (SPA routing)
-app.get(/^(?!\/api).*/, (req, res) => {
-    res.sendFile(path.join(__dirname, "../../Frontend/build", "index.html"));
+app.use((req, res) => {
+    res.sendFile(path.resolve(__dirname, "../../Frontend/build/index.html"));
 });
 
 
