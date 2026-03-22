@@ -11,10 +11,11 @@ import ChatIcon from '@mui/icons-material/Chat'
 import SendIcon from '@mui/icons-material/Send';
 import CloseIcon from '@mui/icons-material/Close';
 import io from 'socket.io-client';
+import server from "../environment";
 
 import styles from "../Styles/videoComponent.module.css"
 
-const server_url = "http://localhost:8000";
+const server_url = server;
 
 var connections = {};
 
