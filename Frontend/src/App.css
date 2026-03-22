@@ -1,0 +1,133 @@
+.landingPageContainer {
+  width: 100vw;
+  height: 100vh;
+  background: url("/public/landing.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: white;
+}
+
+.landingPageContainer nav {
+  padding-inline: 1.2rem;
+  padding-block: 1.6rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.landingPageContainer nav h2 {
+  font-size: 1.8rem;
+  font-weight: 500;
+}
+
+.landingPageContainer nav .navList {
+display: flex;
+gap: 30px;
+cursor: pointer;
+}
+
+.landingMainContainer {
+  display: flex;
+  justify-content: space-between;
+  padding-inline: 3rem;
+  height: 80vh;
+  align-items: center;
+}
+
+.landingMainContainer > div:nth-child(1) {
+  font-size: 2rem;
+}
+
+.landingMainContainer > div:nth-child(1) div[role='button'] {
+  background-color: orange;
+  width: fit-content;
+  padding: 1rem;
+  border-radius: 30px;
+  margin-top: 10px;
+}
+
+.landingMainContainer > div:nth-child(1) div[role='button'] a {
+  text-decoration: none;
+  color: white;
+  font-size: 1.8rem;
+}
+
+.landingMainContainer > div:nth-child(2) img {
+  height: 70vh;
+  width: auto;
+}
+
+@media (max-width: 800px) {
+  .landingPageContainer nav {
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+    padding-block: 2rem;
+  }
+  
+  .landingPageContainer nav .navList {
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 1.1rem;
+  }
+
+  .landingMainContainer {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    height: auto;
+    padding-inline: 2rem;
+    padding-top: 1rem;
+    gap: 3rem;
+  }
+
+  .landingMainContainer > div:nth-child(1) {
+    font-size: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .landingMainContainer > div:nth-child(2) img {
+    height: auto;
+    width: 100%;
+    max-width: 350px;
+    padding-bottom: 3rem;
+  }
+}
+
+.navBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 20px;
+  text-align: center;
+
+}
+.meetContainer {
+  display: flex;
+  padding-inline: 20px;
+  height: 80vh;
+  gap: 10vw;
+  justify-content: center;
+}
+
+
+.leftPanel {
+  height: 100%;
+  display: flex;
+  align-items: center;
+
+}
+
+.rightPanel {
+  display: flex;
+  align-items: center;
+}
+
+.rightPanel > img {
+  width: 30vw;
+  height: auto;
+  border-radius: 20px;
+}
