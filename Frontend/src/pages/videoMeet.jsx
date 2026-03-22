@@ -101,111 +101,7 @@ export default function VideoMeetComponent() {
         };
     }, []);
 
-    let getUserMediaSuccess = (stream) => {
-        window.localStream = stream;
-        localVideoRef.current.srcObject = stream;
-
-        for (let id in connections) {
-            if (id === socketIdRef.current) continue;
-
-            try {
-                // Add tracks to existing peer connections
-                stream.getTracks().forEach(track => {
-                    connections[id].addTrack(track, stream);
-                });
-
-                // Create offer with new tracks
-                connections[id].createOffer().then((description) => {
-                    connections[id].setLocalDescription(description)
-                        .then(() => {
-                            socketRef.current.emit("signal", id, JSON.stringify({ "sdp": connections[id].localDescription }))
-                        })
-                        .catch(e => console.log(e))
-                })
-            } catch (e) {
-                console.log(e)
-            }
-        }
-
-        stream.getTracks().forEach(track => track.onended = () => {
-            setVideo(false)
-            setAudio(false);
-
-            try {
-                if (localVideoRef.current && localVideoRef.current.srcObject && localVideoRef.current.srcObject.getTracks) {
-                    let tracks = localVideoRef.current.srcObject.getTracks()
-                    tracks.forEach(track => track.stop())
-                }
-            } catch (e) {
-                console.log(e)
-            }
-
-            // Replace with silent/black stream
-            let blackSilence = (...args) => new MediaStream([black(...args), silence()]);
-            window.localStream = blackSilence();
-            localVideoRef.current.srcObject = window.localStream;
-
-            for (let id in connections) {
-                try {
-                    // Add black/silent tracks to all connections
-                    window.localStream.getTracks().forEach(track => {
-                        connections[id].addTrack(track, window.localStream);
-                    });
-
-                    connections[id].createOffer().then((description) => {
-                        connections[id].setLocalDescription(description)
-                            .then(() => {
-                                socketRef.current.emit("signal", id, JSON.stringify({ "sdp": connections[id].localDescription }))
-                            }).catch(e => console.log(e));
-                    })
-                } catch (e) {
-                    console.log(e)
-                }
-            }
-        })
-    }
-
-    let silence = () => {
-        let ctx = new AudioContext()
-        let oscillator = ctx.createOscillator();
-
-        let dst = oscillator.connect(ctx.createMediaStreamDestination());
-
-        oscillator.start();
-        ctx.resume()
-        return Object.assign(dst.stream.getAudioTracks()[0], { enabled: false })
-    }
-
-    let black = ({ width = 640, height = 480 } = {}) => {
-        let canvas = Object.assign(document.createElement("canvas"), { width, height });
-
-        const ctx = canvas.getContext('2d')
-        ctx.fillStyle = 'black'
-        ctx.fillRect(0, 0, width, height);
-        let stream = canvas.captureStream();
-        return Object.assign(stream.getVideoTracks()[0], { enabled: false })
-    }
-
-    let getUserMedia = () => {
-        if ((video && videoAvailable) || (audio && audioAvailable)) {
-            navigator.mediaDevices.getUserMedia({ video: video, audio: audio })
-                .then(getUserMediaSuccess)
-                .catch((e) => console.log(e))
-        } else {
-            try {
-                let tracks = localVideoRef.current.srcObject.getTracks();
-                tracks.forEach(track => track.stop())
-            } catch (e) {
-                console.log(e)
-            }
-        }
-    }
-
-    useEffect(() => {
-        if (video !== undefined && audio !== undefined) {
-            getUserMedia();
-        }
-    }, [audio, video])
+    // Removed duplicate stream requests ensuring WebRTC stability
 
     let gotMessageFromServer = (fromId, message) => {
         var signal = JSON.parse(message)
@@ -572,7 +468,7 @@ export default function VideoMeetComponent() {
                     </div>
 
                     <div className={styles.conferenceView}>
-                        <video className={styles.meetUserVideo} ref={localVideoRef} autoPlay muted></video>
+                        <video className={styles.meetUserVideo} ref={localVideoRef} autoPlay muted style={{ transform: "scaleX(-1)" }}></video>
                         {videos.map((video) => (
                             <div key={video.socketId} className={styles.videoWrapper}>
                                 <video
