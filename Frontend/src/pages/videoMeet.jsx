@@ -494,25 +494,51 @@ export default function VideoMeetComponent() {
                         </Badge>
                     </div>
 
-                    <div className={styles.conferenceView}>
-                        <video className={styles.meetUserVideo} ref={localVideoRef} autoPlay muted style={{ transform: "scaleX(-1)" }}></video>
-                        {videos.map((video) => (
-                            <div key={video.socketId} className={styles.videoWrapper}>
-                                <video
-                                    data-socket={video.socketId}
-                                    ref={ref => {
-                                        if (ref && video.stream) {
-                                            ref.srcObject = video.stream;
-                                        }
-                                    }}
-                                    autoPlay
-                                    playsInline
-                                    muted={false}
-                                >
-                                </video>
+                    {/* ── Conference Grid ── */
+                    /* Compute optimal grid columns from total participant count */}
+                    {(() => {
+                        const total = videos.length + 1; // +1 for local
+                        // Pick columns: square-root rounding gives an even grid
+                        const cols = Math.ceil(Math.sqrt(total));
+                        const rows = Math.ceil(total / cols);
+                        return (
+                            <div
+                                className={styles.conferenceView}
+                                style={{
+                                    '--cols': cols,
+                                    '--rows': rows,
+                                }}
+                            >
+                                {/* Local video tile */}
+                                <div className={styles.videoWrapper}>
+                                    <video
+                                        className={styles.meetUserVideo}
+                                        ref={localVideoRef}
+                                        autoPlay
+                                        muted
+                                    />
+                                    <span className={styles.participantLabel}>You</span>
+                                </div>
+
+                                {/* Remote video tiles */}
+                                {videos.map((vid) => (
+                                    <div key={vid.socketId} className={styles.videoWrapper}>
+                                        <video
+                                            data-socket={vid.socketId}
+                                            ref={ref => {
+                                                if (ref && vid.stream) {
+                                                    ref.srcObject = vid.stream;
+                                                }
+                                            }}
+                                            autoPlay
+                                            playsInline
+                                            muted={false}
+                                        />
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
+                        );
+                    })()}
                 </>
             }
         </div>
