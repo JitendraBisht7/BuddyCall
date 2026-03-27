@@ -84,10 +84,11 @@ export default function VideoMeetComponent() {
                 localVideoRef.current.srcObject = stream;
             }
 
+            return { hasVideo, hasAudio };
+
         } catch (error) {
             console.error("Permission denied or error:", error);
-            setVideoAvailable(false);
-            setAudioAvailable(false);
+            return { hasVideo: false, hasAudio: false };
         }
     };
 
@@ -159,7 +160,9 @@ export default function VideoMeetComponent() {
 
     let connectToSocketServer = () => {
 
-        socketRef.current = io.connect(server_url, { secure: false })
+        socketRef.current = io.connect(server_url, {
+            transports: ["websocket"]
+         });
 
         socketRef.current.on('signal', gotMessageFromServer);
 
@@ -265,11 +268,13 @@ export default function VideoMeetComponent() {
     }
 
     let getMedia = async () => {
-        await getPermissions();   // ensure stream exists
-        setVideo(videoAvailable);
-        setAudio(audioAvailable);
-        connectToSocketServer();
-    };
+    const { hasVideo, hasAudio } = await getPermissions();
+
+    setVideo(hasVideo);
+    setAudio(hasAudio);
+
+    connectToSocketServer(); 
+    };   
 
     let connect = () => {
         setAskForUsername(false);
@@ -502,6 +507,7 @@ export default function VideoMeetComponent() {
                                     }}
                                     autoPlay
                                     playsInline
+                                    muted={false}
                                 >
                                 </video>
                             </div>
